@@ -1,0 +1,22 @@
+# 系統檔案
+__pycache__/
+*.py[cod]
+.DS_Store
+.vscode/
+
+# 3DGS 與 COLMAP 產出的重型資料 (這些就是導致 8GB 的元兇)
+sparse/
+undistorted/
+exports/
+output/
+model/
+
+# 編譯檔案
+build/
+colmap/build/
+
+# 大型檔案類型
+*.ply
+*.obj
+*.pth
+*.ckpt
