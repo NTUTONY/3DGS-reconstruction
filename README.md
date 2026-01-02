@@ -1,49 +1,93 @@
-# 📸 3DGS 簡易三維重建專案 (3DGS Reconstruction)
+# 🌿 3DGS 植物三維重建與葉面積分析 (Plant Reconstruction & Analysis)
 
-這是一個基於 **3D Gaussian Splatting (3DGS)** 技術的專案，目標是讓大家能用最簡單的方式，將真實世界的物體變成高品質的 3D 數位模型。
+歡迎使用本專案！這是一個專為植物表型分析設計的自動化工具。
 
-本專案特別針對「轉盤拍攝」進行優化，適合想要建立物件數位雙生 (Digital Twin) 的初學者使用。
-
----
-
-## 🖥️ 事前準備 (Requirements)
-
-在開始之前，請確認你的電腦符合以下基本需求：
-
-1.  **作業系統**：建議使用 Linux (Ubuntu) 或 Windows (需配置 WSL)。
-2.  **顯示卡 (GPU)**：必須是 **NVIDIA 顯示卡** (建議 RTX 30 系列或以上，如 RTX 3090)，因為 3DGS 需要 CUDA 運算。
-3.  **軟體**：
-    * 已安裝 [Anaconda](https://www.anaconda.com/) 或 Python環境。
-    * 已安裝 [COLMAP](https://colmap.github.io/) (用於計算相機位置)。
+我們利用 **Nerfstudio** 與 **3D Gaussian Splatting (3DGS)** 技術，將植物的拍攝影像重建為高精度的 3D 數位模型，並透過程式自動計算出植物的**精確葉面積**。本流程經過簡化，適合初學者與研究人員使用。
 
 ---
 
-## 🚀 快速開始 (Quick Start)
+## 🛠️ 第零步：事前準備 (Prerequisites)
 
-請依照以下四個步驟，從無到有建立你的 3D 模型。
+在開始之前，請確認這台電腦已經準備好以下兩樣東西：
 
-### 第一步：拍攝素材 (Capture)
-我們使用轉盤來拍攝物體，以確保覆蓋所有角度。
+1.  **NVIDIA 顯示卡驅動程式**：
+    * 本專案需要 NVIDIA 顯示卡 (GPU) 進行運算。請確保驅動程式已更新至最新版本。
+2.  **Anaconda (或 Miniconda)**：
+    * 這是用來管理程式環境的軟體。
+    * 如果你還沒安裝，請至 [Anaconda 官網](https://www.anaconda.com/download) 下載並安裝。
+    * *安裝時建議勾選 "Add Anaconda to my PATH environment variable" (Windows 用戶)。*
 
-1.  將物體放置在轉盤中心。
-2.  固定好你的相機或 webcam。
-3.  執行我們提供的自動化拍攝腳本 (會自動控制轉盤並拍照)：
-    ```bash
-    python capture_images.py
-    ```
-    > **小撇步**：拍攝時光線要充足且均勻，背景盡量單純（純黑或純白最佳）。
+---
 
-### 第二步：安裝環境 (Installation)
-下載此專案並安裝必要的套件。打開你的終端機 (Terminal) 輸入以下指令：
+## 📦 第一步：環境安裝與建置 (Installation)
 
+若是**第一次**在這台電腦上使用，請依序執行以下指令來建立環境。
+*(請打開終端機 Terminal 或 Anaconda Prompt 執行)*
+
+### 1. 下載專案程式碼
 ```bash
-# 1. 下載專案
 git clone [https://github.com/NTUTONY/3DGS-reconstruction.git](https://github.com/NTUTONY/3DGS-reconstruction.git)
 cd 3DGS-reconstruction
+2. 建立虛擬環境
+我們要建立一個叫做 nerfstudio 的專屬環境，並安裝 Python 3.8：
 
-# 2. 建立虛擬環境 (建議)
-conda create -n 3dgs python=3.8
-conda activate 3dgs
+Bash
 
-# 3. 安裝依賴套件
-pip install -r requirements.txt
+conda create --name nerfstudio python=3.8 -y
+3. 啟動環境並安裝套件
+環境建立好後，我們需要啟動它，並安裝此專案需要的 Nerfstudio 與其他計算工具：
+
+Bash
+
+# 啟動環境
+conda activate nerfstudio
+
+# 安裝核心依賴 (Nerfstudio 及相關套件)
+# 注意：這步會下載較多檔案，請保持網路暢通
+pip install nerfstudio
+
+# 安裝數據分析需要的額外套件 (如計算葉面積用)
+pip install numpy pandas open3d scipy
+(如果專案中有提供 requirements.txt，也可以用 pip install -r requirements.txt 代替上方指令)
+
+🚀 第二步：開始訓練模型 (Training)
+當環境安裝好後，以後每次使用只需要從這裡開始。
+
+1. 啟動環境
+確保你是在 nerfstudio 的環境下操作（終端機最前面會顯示 (nerfstudio)）：
+
+Bash
+
+conda activate nerfstudio
+2. 執行自動化訓練腳本
+我們將繁雜的指令封裝成了 .sh 腳本。這個腳本會自動讀取數據並訓練 3D 模型。
+
+Bash
+
+# 賦予腳本執行權限 (如果是剛下載的檔案，務必執行這行，否則會報錯)
+chmod +x train_plant.sh
+
+# 開始訓練
+./train_plant.sh
+☕ 小提醒：訓練過程依據照片數量與顯卡效能，可能需要 10~30 分鐘。請耐心等待直到出現 "Finished" 或進度條跑完。
+
+📊 第三步：獲取數據分析 (Analysis)
+當 3D 模型訓練完成後，我們執行 Python 程式來提取數據。
+
+Bash
+
+python3 precise_leaf_area.py
+程式輸出說明：
+
+程式會讀取剛剛訓練好的模型。
+
+計算並在螢幕上顯示植物的總葉面積 (Leaf Area) 數據。
+
+相關的分析圖表或數據檔將會儲存在專案資料夾中。
+
+📂 檔案結構說明
+train_plant.sh：自動化訓練腳本。它是給系統看的「劇本」，告訴電腦如何呼叫 Nerfstudio 進行運算。
+
+precise_leaf_area.py：葉面積計算程式。利用演算法分析 3D 點雲或投影，算出精確數值。
+
+data/：(預設) 請將你拍攝的植物照片或影片放入此資料夾。
